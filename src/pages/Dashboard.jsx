@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Ico = ({ d, size = 18, ...p }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
@@ -500,6 +501,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => { if (!user) navigate('/authshield-site/login'); }, [user, navigate]);
   if (!user) return null;
@@ -508,90 +510,258 @@ export default function Dashboard() {
   const licenses = getLicenses();
   const apiKeys = getApiKeys();
   const keyFormats = getKeyFormats();
-  const sw = sidebarOpen ? 260 : 72;
+  const sw = sidebarOpen ? 260 : 64;
 
   const tabContent = { overview: <OverviewTab stats={stats} licenses={licenses}/>, keys: <KeysTab licenses={licenses} generateLicense={generateLicense} deleteLicense={deleteLicense} revokeLicense={revokeLicense} keyFormats={keyFormats}/>, sdk: <SDKTab/>, apikeys: <ApiKeysTab apiKeys={apiKeys} rotateApiKey={rotateApiKey}/>, users: <UsersTab/>, audit: <AuditTab/>, profile: <ProfileTab/>, settings: <SettingsTab/> };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex' }}>
-      {/* Sidebar */}
-      <motion.aside animate={{ width: sw }} transition={{ duration: 0.3, ease: 'easeInOut' }} style={{ width: sw, minHeight: '100vh', position: 'fixed', left: 0, top: 0, background: 'var(--bg-card)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', zIndex: 100, padding: '20px 0', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Logo + Toggle */}
-        <div style={{ padding: sidebarOpen ? '0 20px 20px' : '0 12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: sidebarOpen ? 10 : 0, justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setSidebarOpen(!sidebarOpen)} style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, var(--accent), #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-            <motion.div animate={{ rotate: sidebarOpen ? 0 : 180 }} transition={{ duration: 0.3 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                {sidebarOpen ? <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></> : <><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+      {/* ─── HEADER ─── */}
+      <header style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+        height: 56,
+        background: 'var(--bg-card)',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 20px',
+      }}>
+        {/* Left: Toggle + Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <motion.button
+            whileHover={{ background: 'var(--bg-tertiary)' }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-secondary)',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {sidebarOpen ? (
+                <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+              ) : (
+                <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+              )}
+            </svg>
+          </motion.button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: 'linear-gradient(135deg, var(--accent), #8b5cf6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
-            </motion.div>
-          </motion.button>
-          <AnimatePresence>
-            {sidebarOpen && (
-              <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden' }}>AuthShield</motion.span>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {TABS.map(tab => (
-            <motion.button key={tab.id} whileTap={{ scale: 0.97 }} onClick={() => setActiveTab(tab.id)} title={sidebarOpen ? '' : tab.label} style={{ display: 'flex', alignItems: 'center', gap: sidebarOpen ? 10 : 0, padding: sidebarOpen ? '10px 14px' : '10px 0', justifyContent: sidebarOpen ? 'flex-start' : 'center', borderRadius: 10, fontSize: 14, fontWeight: activeTab===tab.id ? 600 : 500, color: activeTab===tab.id ? 'var(--accent)' : 'var(--text-secondary)', background: activeTab===tab.id ? 'var(--accent-light)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
-              <Icon name={tab.icon} size={18}/>
-              <AnimatePresence>
-                {sidebarOpen && (
-                  <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>{tab.label}</motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          ))}
-        </nav>
-
-        {/* User section */}
-        <div style={{ padding: sidebarOpen ? '12px 20px' : '12px 10px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: sidebarOpen ? 10 : 0, marginBottom: 12, justifyContent: sidebarOpen ? 'flex-start' : 'center' }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent), #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'white', flexShrink: 0 }}>{user?.username?.[0]?.toUpperCase()}</div>
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} style={{ overflow: 'hidden' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>{user?.username}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>{user?.plan}</div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          <motion.button whileTap={{ scale: 0.95 }} onClick={() => { logout(); navigate('/authshield-site/'); }} style={{ ...bS, width: '100%', justifyContent: 'center', padding: sidebarOpen ? '8px 16px' : '8px 0' }}>
-            <Icon name="logout" size={14}/>
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>Sair</motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        </div>
-      </motion.aside>
-
-      {/* Main Content */}
-      <motion.main animate={{ marginLeft: sw }} transition={{ duration: 0.3, ease: 'easeInOut' }} style={{ flex: 1, padding: 32 }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <div style={{ marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px' }}>{TABS.find(t => t.id === activeTab)?.label}</h1>
-              <p style={{ fontSize: 14, color: 'var(--text-tertiary)', marginTop: 4 }}>Bem-vindo, {user?.username}</p>
             </div>
-            {!sidebarOpen && (
-              <motion.button whileTap={{ scale: 0.9 }} onClick={() => setSidebarOpen(true)} style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-              </motion.button>
-            )}
+            <span style={{
+              fontSize: 16, fontWeight: 800, letterSpacing: '-0.5px',
+              background: 'linear-gradient(135deg, var(--accent), #a78bfa)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>AuthShield</span>
           </div>
-          <AnimatePresence mode="wait">
-            <motion.div key={activeTab} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }}>
-              {tabContent[activeTab]}
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
-      </motion.main>
+        </div>
+
+        {/* Center: Breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>Dashboard</span>
+          <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>/</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+            {TABS.find(t => t.id === activeTab)?.label}
+          </span>
+        </div>
+
+        {/* Right: Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Theme Toggle */}
+          <motion.button
+            whileHover={{ background: 'var(--bg-tertiary)' }}
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleTheme}
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'transparent', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-secondary)',
+            }}
+          >
+            {theme === 'dark' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            )}
+          </motion.button>
+
+          {/* Notifications */}
+          <motion.button
+            whileHover={{ background: 'var(--bg-tertiary)' }}
+            whileTap={{ scale: 0.9 }}
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'transparent', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-secondary)', position: 'relative',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <div style={{
+              position: 'absolute', top: 7, right: 7, width: 8, height: 8,
+              borderRadius: '50%', background: 'var(--danger)', border: '2px solid var(--bg-card)',
+            }}/>
+          </motion.button>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 28, background: 'var(--border)', margin: '0 4px' }}/>
+
+          {/* User Avatar + Name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setActiveTab('profile')}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--accent), #8b5cf6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 700, color: 'white',
+            }}>{user?.username?.[0]?.toUpperCase()}</div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.2 }}>{user?.username}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-tertiary)', lineHeight: 1.2 }}>{user?.plan}</span>
+            </div>
+          </div>
+
+          {/* Logout */}
+          <motion.button
+            whileHover={{ background: 'rgba(239,68,68,0.1)' }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { logout(); navigate('/authshield-site/'); }}
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'transparent', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--danger)',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </motion.button>
+        </div>
+      </header>
+
+      <div style={{ display: 'flex', marginTop: 56 }}>
+        {/* ─── SIDEBAR ─── */}
+        <motion.aside
+          animate={{ width: sw }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          style={{
+            width: sw, height: 'calc(100vh - 56px)', position: 'fixed', left: 0, top: 56,
+            background: 'var(--bg-card)', borderRight: '1px solid var(--border)',
+            display: 'flex', flexDirection: 'column', zIndex: 100,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Nav */}
+          <nav style={{ flex: 1, padding: '16px 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {TABS.map(tab => (
+              <motion.button
+                key={tab.id}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setActiveTab(tab.id)}
+                title={!sidebarOpen ? tab.label : ''}
+                style={{
+                  display: 'flex', alignItems: 'center',
+                  padding: sidebarOpen ? '10px 14px' : '10px 0',
+                  justifyContent: 'center',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: activeTab===tab.id ? 600 : 500,
+                  color: activeTab===tab.id ? 'var(--accent)' : 'var(--text-secondary)',
+                  background: activeTab===tab.id ? 'var(--accent-light)' : 'transparent',
+                  border: 'none', cursor: 'pointer', textAlign: 'left',
+                  transition: 'all 0.2s', position: 'relative',
+                  height: 42,
+                }}
+              >
+                <span style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon name={tab.icon} size={18}/>
+                </span>
+                {sidebarOpen && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    style={{ marginLeft: 10, whiteSpace: 'nowrap', overflow: 'hidden' }}
+                  >
+                    {tab.label}
+                  </motion.span>
+                )}
+              </motion.button>
+            ))}
+          </nav>
+
+          {/* Sidebar Footer */}
+          {sidebarOpen && (
+            <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--accent), #8b5cf6)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0,
+                }}>{user?.username?.[0]?.toUpperCase()}</div>
+                <div style={{ overflow: 'hidden' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.username}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{user?.role}</div>
+                </div>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { logout(); navigate('/authshield-site/'); }}
+                style={{
+                  ...bS, width: '100%', justifyContent: 'center', padding: '8px 16px',
+                }}
+              >
+                <Icon name="logout" size={14}/>
+                <span style={{ marginLeft: 6 }}>Sair</span>
+              </motion.button>
+            </div>
+          )}
+        </motion.aside>
+
+        {/* ─── MAIN CONTENT ─── */}
+        <motion.main
+          animate={{ marginLeft: sw }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          style={{
+            flex: 1, padding: 32, minHeight: 'calc(100vh - 56px)',
+            background: 'var(--bg-primary)',
+          }}
+        >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div style={{ marginBottom: 28 }}>
+              <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px' }}>
+                {TABS.find(t => t.id === activeTab)?.label}
+              </h1>
+              <p style={{ fontSize: 14, color: 'var(--text-tertiary)', marginTop: 4 }}>
+                Bem-vindo de volta, {user?.username}
+              </p>
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div key={activeTab} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }}>
+                {tabContent[activeTab]}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+        </motion.main>
+      </div>
     </div>
   );
 }
