@@ -37,10 +37,10 @@ export default function Footer() {
           <div>
             <h4 style={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 16 }}>Produto</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <Link to="/features" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Features</Link>
-              <Link to="/pricing" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Pricing</Link>
-              <Link to="/docs" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Documentation</Link>
-              <Link to="/dashboard" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Dashboard</Link>
+              <Link to="/authshield-site/features" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Features</Link>
+              <Link to="/authshield-site/pricing" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Pricing</Link>
+              <Link to="/authshield-site/docs" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Documentation</Link>
+              <Link to="/authshield-site/dashboard" style={{ fontSize: 14, color: 'var(--text-secondary)', transition: 'color 0.2s' }}>Dashboard</Link>
             </div>
           </div>
 

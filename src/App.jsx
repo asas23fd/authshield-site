@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -13,33 +13,36 @@ import { useAuth } from './context/AuthContext';
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/authshield-site/login" replace />;
   return children;
 }
 
 function PublicRoute({ children }) {
   const { user } = useAuth();
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to="/authshield-site/dashboard" replace />;
   return children;
 }
 
 export default function App() {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith('/authshield-site/dashboard');
+
   return (
     <>
-      <Navbar />
+      {!isDashboard && <Navbar />}
       <AnimatePresence mode="wait">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/docs" element={<Docs />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+        <Routes location={location} key={location.pathname}>
+          <Route path="/authshield-site" element={<Home />} />
+          <Route path="/authshield-site/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/authshield-site/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/authshield-site/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/authshield-site/features" element={<Features />} />
+          <Route path="/authshield-site/pricing" element={<Pricing />} />
+          <Route path="/authshield-site/docs" element={<Docs />} />
+          <Route path="*" element={<Navigate to="/authshield-site" replace />} />
         </Routes>
       </AnimatePresence>
-      <Footer />
+      {!isDashboard && <Footer />}
     </>
   );
 }

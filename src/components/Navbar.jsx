@@ -7,10 +7,10 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
-  { path: '/', label: 'Home' },
-  { path: '/features', label: 'Features' },
-  { path: '/pricing', label: 'Pricing' },
-  { path: '/docs', label: 'Docs' },
+  { path: '/authshield-site/', label: 'Home' },
+  { path: '/authshield-site/features', label: 'Features' },
+  { path: '/authshield-site/pricing', label: 'Pricing' },
+  { path: '/authshield-site/docs', label: 'Docs' },
 ];
 
 export default function Navbar() {
@@ -64,7 +64,7 @@ export default function Navbar() {
           justifyContent: 'space-between',
         }}>
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link to="/authshield-site/" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Logo size={32} animated={false} />
             <span style={{
               fontSize: 20,
@@ -140,7 +140,7 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <Link to="/dashboard">
+                <Link to="/authshield-site/dashboard">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -181,7 +181,7 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className="desktop-nav">
+                <Link to="/authshield-site/login" className="desktop-nav">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -198,7 +198,7 @@ export default function Navbar() {
                     Login
                   </motion.button>
                 </Link>
-                <Link to="/register">
+                <Link to="/authshield-site/register">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -279,7 +279,7 @@ export default function Navbar() {
               </Link>
             ))}
             {!user && (
-              <Link to="/login" style={{
+              <Link to="/authshield-site/login" style={{
                 padding: '12px 16px',
                 borderRadius: 10,
                 fontSize: 15,
